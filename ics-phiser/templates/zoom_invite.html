@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>{{summary}}</title>
+</head>
+<body style="font-family: Helvetica, Arial, sans-serif; background-color: #f9f9f9; padding: 20px;">
+  <div style="max-width: 600px; margin: auto; background: white; border: 1px solid #ddd; padding: 20px;">
+
+    <div style="text-align: center;">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/7/7b/Zoom_Communications_Logo.svg" alt="Zoom Logo" width="120">
+    </div>
+
+    <h2 style="color: #2d2d2d;">Meeting Invitation</h2>
+
+    <p><strong>Organizer:</strong> {{organizer_name}} ({{organizer_email}})</p>
+    <p><strong>When:</strong> {{start}} – {{end}}</p>
+    <p><strong>Topic:</strong> {{summary}}</p>
+    <p><strong>Description:</strong><br>{{description}}</p>
+
+    <div style="text-align: center; margin: 30px 0;">
+      <a href="{{attacker_url}}" style="background-color: #2D8CFF; color: white; padding: 12px 20px; text-decoration: none; border-radius: 5px; font-weight: bold;">
+        Join Zoom Meeting
+      </a>
+    </div>
+
+    <p>For more information or meeting options, visit:
+      <a href="{{attacker_url}}" style="color: #2D8CFF;">Meeting Link</a>
+    </p>
+
+    <hr style="margin: 40px 0;">
+    <p style="font-size: 12px; color: #666;">This invitation was sent from Zoom on behalf of {{organizer_name}}.</p>
+  </div>
+</body>
+</html>

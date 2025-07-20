@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Meeting Invitation</title>
+</head>
+<body style="font-family:Calibri, sans-serif; font-size:11pt; color:#1f1f1f; background-color:white; margin:20px;">
+  <p>Hi,</p>
+
+  <p>You have been invited to the following meeting:</p>
+
+  <p><strong>Subject:</strong> {{summary}}<br>
+     <strong>Organizer:</strong> {{organizer_name}} ({{organizer_email}})<br>
+     <strong>When:</strong> {{start}} - {{end}}<br>
+     <strong>Location:</strong> Microsoft Teams Meeting (Online)</p>
+
+  <p><strong>Details:</strong><br>
+     {{description}}</p>
+
+  <p><a href="{{attacker_url}}" target="_blank" style="color:#0078d4; text-decoration:none;">Click here to join the meeting</a></p>
+
+  <p>This is an automatically generated meeting request.<br>
+     Please do not reply to this email.</p>
+
+  <hr style="border:0; border-top:1px solid #ccc;">
+  <p style="font-size:9pt; color:#666;">Microsoft Outlook</p>
+</body>
+</html>
