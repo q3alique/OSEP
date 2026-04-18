@@ -1,0 +1,14 @@
+<html>
+<head>
+<script language="JScript">
+var window_obj = window;
+window_obj.moveTo(-1000, -1000); // Try to hide window
+
+#JS_CODE#
+
+window.close();
+</script>
+</head>
+<body>
+</body>
+</html>

